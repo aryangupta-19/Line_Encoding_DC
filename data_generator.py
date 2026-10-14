@@ -33,9 +33,7 @@ def longest_palindrome(bits):
     for i in range(len(bits)):
         for j in range(i + 1, len(bits) + 1):
             substring = bits[i:j]
-
-            if substring == substring[::-1]:
-                if len(substring) > len(longest):
-                    longest = substring
+            if substring == substring[::-1] and len(substring) > len(longest):
+                longest = substring
 
     return longest
