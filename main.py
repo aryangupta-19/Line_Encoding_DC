@@ -5,6 +5,7 @@ from data_generator import (
 )
 
 from line_coding import nrz_l
+from line_coding import nrz_l, nrz_i
 
 def main():
     length = 20
@@ -17,8 +18,9 @@ def main():
     print("\nSequence with 4 Consecutive Zeros:", bits_with_zeros)
     print("Longest Palindrome:", longest_palindrome(bits_with_zeros))
 
-    encoded_signal = nrz_l(bits)
-    print("\nNRZ-L Encoded Signal:", encoded_signal)
+
+    print("\nNRZ-L Encoded Signal:", nrz_l(bits))
+    print("NRZ-I Encoded Signal:", nrz_i(bits))
 
 
 if __name__ == "__main__":
