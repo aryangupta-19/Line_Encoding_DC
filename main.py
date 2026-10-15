@@ -4,10 +4,8 @@ from data_generator import (
     longest_palindrome
 )
 
-from line_coding import nrz_l
-from line_coding import nrz_l, nrz_i
-from line_coding import nrz_l, nrz_i, manchester, differential_manchester
 from line_coding import nrz_l, nrz_i, manchester, differential_manchester, ami
+from scrambling import b8zs, hdb3
 
 def main():
     length = 20
@@ -28,6 +26,25 @@ def main():
     print("Differential_Manchester Encoded Signal:", differential_manchester(bits))
     
     print("AMI Encoded Signal:", ami(bits))
+    
+    
+    test_bits = "110000000010"
+    print("Input Bits:", test_bits)
+    print("B8ZS Signal:", b8zs(test_bits))
+    
+    tests = [
+        "1",
+        "0000",
+        "10000",
+        "100000000",
+        "110000",
+        "100000000000",
+    ]
+
+    for bits in tests:
+        print("Input:", bits)
+        print("HDB3:", hdb3(bits))
+        print()
 
 if __name__ == "__main__":
     main()
