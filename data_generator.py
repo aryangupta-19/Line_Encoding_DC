@@ -3,7 +3,6 @@ import random
 
 def gen_rand_bits(length):
     bits = ""
-
     for _ in range(length):
         bits += str(random.randint(0, 1))
 
