@@ -4,14 +4,14 @@ def b8zs(bits):
     i = 0
 
     while i < len(bits):
-        if bits[i:i + 8] == "00000000":
+        if bits[i : i + 8] == "00000000":
             if last_pulse == 1:
-                pattern = [0, 0, 0, 1, -1, 0, -1, 1]
-            else:
-                pattern = [0, 0, 0, -1, 1, 0, 1, -1]
+                pattern = [0, 0, 0, 1, -1, 0, -1, 1]     # if last pulse is +ve (replace 0s with {0 0 0 +ve -ve 0 -ve +ve})
+            if last_pulse = -1:
+                pattern = [0, 0, 0, -1, 1, 0, 1, -1]    # if last pulse is -ve (replace 0s with {0 0 0 -ve +ve 0 +ve -ve})
 
             signal.extend(pattern)
-            last_pulse = pattern[-1]
+            last_pulse = pattern[-1]    # assigning last index of pattern
             i += 8
 
         elif bits[i] == "0":
