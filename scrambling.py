@@ -7,7 +7,7 @@ def b8zs(bits):
         if bits[i : i + 8] == "00000000":
             if last_pulse == 1:
                 pattern = [0, 0, 0, 1, -1, 0, -1, 1]     # if last pulse is +ve (replace 0s with {0 0 0 +ve -ve 0 -ve +ve})
-            if last_pulse = -1:
+            if last_pulse == -1:
                 pattern = [0, 0, 0, -1, 1, 0, 1, -1]    # if last pulse is -ve (replace 0s with {0 0 0 -ve +ve 0 +ve -ve})
 
             signal.extend(pattern)
