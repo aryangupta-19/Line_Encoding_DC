@@ -2,11 +2,7 @@ import random
 
 
 def gen_rand_bits(length):
-    bits = ""
-    for _ in range(length):
-        bits += str(random.randint(0, 1))
-
-    return bits
+    return "".join(random.choices(("0", "1"), k=length))
 
 
 def gen_bits_with_zeros(length, z_cnt):
@@ -17,22 +13,38 @@ def gen_bits_with_zeros(length, z_cnt):
         raise ValueError("length must be >= z_cnt")
 
     bits = gen_rand_bits(length)
-
     z_seq = "0" * z_cnt
     pos = random.randint(0, length - z_cnt)
 
-    bits = bits[:pos] + z_seq + bits[pos + z_cnt:]
-
-    return bits
+    return bits[:pos] + z_seq + bits[pos + z_cnt:]
 
 
 def longest_palindrome(bits):
-    longest = ""
+    if not bits:
+        return ""
 
-    for i in range(len(bits)):
-        for j in range(i + 1, len(bits) + 1):
-            substring = bits[i:j]
-            if substring == substring[::-1] and len(substring) > len(longest):
-                longest = substring
+    transformed = "^#" + "#".join(bits) + "#$"
+    n = len(transformed)
+    p = [0] * n
+    center = right = 0
+    max_len = 0
+    center_idx = 0
 
-    return longest
+    for i in range(1, n - 1):
+        i_mirror = 2 * center - i
+        if right > i:
+            p[i] = min(right - i, p[i_mirror])
+
+        while transformed[i + 1 + p[i]] == transformed[i - 1 - p[i]]:
+            p[i] += 1
+
+        if i + p[i] > right:
+            center = i
+            right = i + p[i]
+
+        if p[i] > max_len:
+            max_len = p[i]
+            center_idx = i
+
+    start = (center_idx - max_len) // 2
+    return bits[start : start + max_len]

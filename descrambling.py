@@ -1,57 +1,45 @@
+B8ZS_PATTERNS = {
+    (0, 0, 0, 1, -1, 0, -1, 1): "00000000",
+    (0, 0, 0, -1, 1, 0, 1, -1): "00000000",
+}
+
+HDB3_PATTERNS = {
+    (1, 0, 0, 1): "0000",
+    (-1, 0, 0, -1): "0000",
+    (0, 0, 0, 1): "0000",
+    (0, 0, 0, -1): "0000",
+}
+
+
 def decode_b8zs(signal):
-    bits = ""
+    bits = []
     i = 0
+    n = len(signal)
 
-    while i < len(signal):
-
-        if signal[i:i + 3] == [0, 0, 0]:
-            pattern = signal[i:i + 8]
-
-            if pattern == [0, 0, 0, 1, -1, 0, -1, 1]:
-                bits += "00000000"
-                i += 8
-
-            elif pattern == [0, 0, 0, -1, 1, 0, 1, -1]:
-                bits += "00000000"
-                i += 8
-
-            else:
-                bits += "0"
-                i += 1
-
-        elif signal[i] == 0:
-            bits += "0"
-            i += 1
-
+    while i < n:
+        chunk = tuple(signal[i : i + 8])
+        if chunk in B8ZS_PATTERNS:
+            bits.append(B8ZS_PATTERNS[chunk])
+            i += 8
         else:
-            bits += "1"
+            bits.append("0" if signal[i] == 0 else "1")
             i += 1
 
-    return bits
+    return "".join(bits)
 
 
 def decode_hdb3(signal):
-    bits = ""
+    bits = []
     i = 0
+    n = len(signal)
 
-    while i < len(signal):
-
-        pattern = signal[i:i + 4]
-
-        if pattern == [1, 0, 0, 1] or pattern == [-1, 0, 0, -1]:
-            bits += "0000"
+    while i < n:
+        chunk = tuple(signal[i : i + 4])
+        if chunk in HDB3_PATTERNS:
+            bits.append(HDB3_PATTERNS[chunk])
             i += 4
-
-        elif signal[i:i + 4] == [0, 0, 0, 1] or signal[i:i + 4] == [0, 0, 0, -1]:
-            bits += "0000"
-            i += 4
-
-        elif signal[i] == 0:
-            bits += "0"
-            i += 1
-
         else:
-            bits += "1"
+            bits.append("0" if signal[i] == 0 else "1")
             i += 1
 
-    return bits
+    return "".join(bits)
