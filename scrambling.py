@@ -1,13 +1,13 @@
 B8ZS_SUBSTITUTIONS = {
-    1: [0, 0, 0, 1, -1, 0, -1, 1],
-    -1: [0, 0, 0, -1, 1, 0, 1, -1],
+    1: [0, 0, 0, 1, -1, 0, -1, 1],   # if last is +ve ->  0 0 0 +ve -ve 0 -ve +ve
+    -1: [0, 0, 0, -1, 1, 0, 1, -1],  # if last is -ve ->  0 0 0 -ve +ve 0 +ve -ve
 }
 
 HDB3_SUBSTITUTIONS = {
-    (0, 1): [-1, 0, 0, -1],
-    (0, -1): [1, 0, 0, 1],
-    (1, 1): [0, 0, 0, 1],
-    (1, -1): [0, 0, 0, -1],
+    (0, 1): [-1, 0, 0, -1],     # even & +ve ---> voov
+    (0, -1): [1, 0, 0, 1],      # even & -ve ---> boob
+    (1, 1): [0, 0, 0, 1],       # odd  & +ve ---> oooB
+    (1, -1): [0, 0, 0, -1],     # odd  & -ve ---> oooV
 }
 
 
@@ -18,11 +18,11 @@ def b8zs(bits):
     n = len(bits)
 
     while i < n:
-        if bits.startswith("00000000", i):
-            pattern = B8ZS_SUBSTITUTIONS[last_pulse]
-            signal.extend(pattern)
-            last_pulse = pattern[-1]
-            i += 8
+        if bits.startswith("00000000", i):      # if 8 zeroes then take pattern according to last pulse 
+            pattern = B8ZS_SUBSTITUTIONS[last_pulse]         # append pattern 
+            signal.extend(pattern)      
+            last_pulse = pattern[-1]                    # last pulse will be last bit of current pattern
+            i += 8          
         elif bits[i] == "0":
             signal.append(0)
             i += 1
@@ -42,12 +42,12 @@ def hdb3(bits):
     n = len(bits)
 
     while i < n:
-        if bits.startswith("0000", i):
+        if bits.startswith("0000", i):   
             pattern = HDB3_SUBSTITUTIONS[(pulse_count % 2, last_pulse)]
-            signal.extend(pattern)
-            last_pulse = pattern[-1]
-            pulse_count = 0
-            i += 4
+            signal.extend(pattern)     
+            last_pulse = pattern[-1]    
+            pulse_count = 0             
+            i += 4                  
         elif bits[i] == "0":
             signal.append(0)
             i += 1

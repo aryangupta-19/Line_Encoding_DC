@@ -2,11 +2,11 @@ NRZ_L_MAP = {"0": 1, "1": -1}
 MANCHESTER_MAP = {"0": [1, -1], "1": [-1, 1]}
 
 
-def nrz_l(bits):
+def nrz_l(bits):        # zero -> hero , one -> zero 
     return [NRZ_L_MAP[b] for b in bits]
 
 
-def nrz_i(bits):
+def nrz_i(bits):        # prev 0 -> no inversion
     signal = []
     level = 1
 
@@ -18,7 +18,7 @@ def nrz_i(bits):
     return signal
 
 
-def manchester(bits):
+def manchester(bits):   # Z formation 
     signal = []
 
     for bit in bits:
@@ -27,7 +27,7 @@ def manchester(bits):
     return signal
 
 
-def differential_manchester(bits):
+def differential_manchester(bits):  # at bit = 0 transition in next Z otherwise folowup 
     signal = []
     level = 1
 
@@ -42,7 +42,7 @@ def differential_manchester(bits):
     return signal
 
 
-def ami(bits):
+def ami(bits):  # be on 0 at 0 and if 1 alternate the position 
     signal = []
     level = -1
 

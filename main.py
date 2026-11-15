@@ -1,8 +1,5 @@
-from data_generator import (
-    gen_rand_bits,
-    gen_bits_with_zeros,
-    longest_palindrome
-)
+import math
+from data_generator import gen_rand_bits, gen_bits_with_zeros, longest_palindrome
 from line_coding import nrz_l, nrz_i, manchester, differential_manchester, ami
 from scrambling import b8zs, hdb3
 from line_coding_decoders import (
@@ -10,137 +7,111 @@ from line_coding_decoders import (
     decode_nrz_i,
     decode_manchester,
     decode_differential_manchester,
-    decode_ami
+    decode_ami,
 )
 from descrambling import decode_b8zs, decode_hdb3
-from delta_modulation import dm_encoder, dm_decoder
+from delta_modulation import dm_encoder
 from plot_signals import plot_digital_signal, plot_delta_modulation
 
 
-def main():
-    length = 20
+def get_digital_bits():
+    print("\n1. Enter bits\n2. Random bits\n3. Random with 4 zeros\n4. Random with 8 zeros")
+    sources = {
+        "1": lambda: input("Enter bits: ").strip(),
+        "2": lambda: gen_rand_bits(20),
+        "3": lambda: gen_bits_with_zeros(20, 4),
+        "4": lambda: gen_bits_with_zeros(20, 8),
+    }
+    return sources.get(input("Choice: ").strip(), sources["2"])()
 
-    bits = gen_rand_bits(length)
-    print("\nRandom Binary Sequence:", bits)
+
+def get_float_input(prompt):
+    while True:
+        try:
+            return float(input(prompt).strip())
+        except ValueError:
+            print("Invalid number. Try again.")
+
+
+def get_sine_samples():
+    amp = get_float_input("Amplitude: ")
+    return [round(amp * math.sin(2 * math.pi * i / 20), 2) for i in range(20)]
+
+
+def get_custom_samples():
+    while True:
+        raw = input("Enter samples separated by spaces: ").strip()
+        if not raw:
+            print("Cannot be empty. Try again.")
+            continue
+        try:
+            return [float(x) for x in raw.split()]
+        except ValueError:
+            print("Invalid numbers. Try again.")
+
+
+def get_analog_bits():
+    print("\n1. Sine wave\n2. Type my own samples")
+    sources = {"1": get_sine_samples, "2": get_custom_samples}
+    samples = sources.get(input("Choice: ").strip(), sources["1"])()
+    delta = get_float_input("Delta step size: ")
+    dm_bits, reconstructed = dm_encoder(samples, delta)
+    plot_delta_modulation(samples, reconstructed)
+    return "".join(str(b) for b in dm_bits)
+
+
+def main():
+    print("1. Digital Input\n2. Analog Input")
+    inputs = {"1": get_digital_bits, "2": get_analog_bits}
+    bits = inputs.get(input("Choice: ").strip(), get_digital_bits)()
+
+    print("\nBits:", bits)
     print("Longest Palindrome:", longest_palindrome(bits))
 
-    bits_with_zeros = gen_bits_with_zeros(length, 4)
-    print("\nSequence with 4 Consecutive Zeros:", bits_with_zeros)
-    print("Longest Palindrome:", longest_palindrome(bits_with_zeros))
+    schemes = {
+        "1": ("NRZ-L", nrz_l, decode_nrz_l),
+        "2": ("NRZ-I", nrz_i, decode_nrz_i),
+        "3": ("Manchester", manchester, decode_manchester),
+        "4": ("Differential Manchester", differential_manchester, decode_differential_manchester),
+        "5": ("AMI", ami, decode_ami),
+    }
 
-    print("\nNRZ-L Encoded Signal:", nrz_l(bits))
-    print("NRZ-I Encoded Signal:", nrz_i(bits))
+    print("\nLine Coding:")
+    for k in sorted(schemes):
+        print(f"{k}. {schemes[k][0]}")
 
-    print("Manchester Encoded Signal:", manchester(bits))
-    print("Differential_Manchester Encoded Signal:", differential_manchester(bits))
+    name, encoder, decoder = schemes.get(input("Choice: ").strip(), schemes["1"])
 
-    print("AMI Encoded Signal:", ami(bits))
-
-    test_bits = "110000000010"
-    print("Input Bits:", test_bits)
-    print("B8ZS Signal:", b8zs(test_bits))
-
-    tests = [
-        "1",
-        "0000",
-        "10000",
-        "100000000",
-        "110000",
-        "100000000000",
-    ]
-
-    for t_bits in tests:
-        print("Input:", t_bits)
-        print("HDB3:", hdb3(t_bits))
-        print()
-
-    bits = "10110010"
-
-    print("\nOriginal Bits:", bits)
-    print("NRZ-L Decoded:", decode_nrz_l(nrz_l(bits)))
-    print("NRZ-I Decoded:", decode_nrz_i(nrz_i(bits)))
-    print("Manchester Decoded:", decode_manchester(manchester(bits)))
-    print("Differential Manchester Decoded:",
-        decode_differential_manchester(differential_manchester(bits)))
-    print("AMI Decoded:", decode_ami(ami(bits)))
-
-    original_bits = "110000000010"
-    encoded_signal = b8zs(original_bits)
-    decoded_bits = decode_b8zs(encoded_signal)
-
-    print("\nB8ZS Original:", original_bits)
-    print("B8ZS Encoded:", encoded_signal)
-    print("B8ZS Decoded:", decoded_bits)
-    print("B8ZS Correct:", original_bits == decoded_bits)
-
-    original_bits = "110000"
-    encoded_signal = hdb3(original_bits)
-    decoded_bits = decode_hdb3(encoded_signal)
-
-    print("\nHDB3 Original:", original_bits)
-    print("HDB3 Encoded:", encoded_signal)
-    print("HDB3 Decoded:", decoded_bits)
-    print("HDB3 Correct:", original_bits == decoded_bits)
-
-    test_sequences = [
-        "0000",
-        "10000",
-        "100000000",
-        "110000",
-        "100000000000",
-        "110000000000"
-    ]
-
-    for original_bits in test_sequences:
-        encoded_signal = hdb3(original_bits)
-        decoded_bits = decode_hdb3(encoded_signal)
-
-        print("Original:", original_bits)
-        print("Encoded:", encoded_signal)
-        print("Decoded:", decoded_bits)
-        print("Correct:", original_bits == decoded_bits)
-        print()
-
-    samples = [0.5, 1.2, 2.0, 1.5, 0.5, -0.5, -1.5, -0.5, 0.8, 1.8]
-    delta = 0.5
-
-    dm_bits, reconstructed = dm_encoder(samples, delta)
-    decoded_signal = dm_decoder(dm_bits, delta)
-
-    print("\nOriginal Analog Samples:", samples)
-    print("Delta Modulation Bits:", dm_bits)
-    print("Encoder Reconstruction:", reconstructed)
-    print("Decoder Reconstruction:", decoded_signal)
-
-    bits = "10110010"
-
-    signals = [
-        nrz_l(bits),
-        nrz_i(bits),
-        manchester(bits),
-        differential_manchester(bits),
-        ami(bits)
-    ]
-
-    names = [
-        "NRZ-L",
-        "NRZ-I",
-        "Manchester",
-        "Differential Manchester",
-        "AMI"
-    ]
+    if name == "AMI":
+        scramblers = {
+            "1": ("B8ZS", b8zs, decode_b8zs),
+            "2": ("HDB3", hdb3, decode_hdb3),
+        }
+        if input("Scrambling? (y/n): ").strip().lower() in ("y", "yes"):
+            print("1. B8ZS\n2. HDB3")
+            s_name, s_enc, s_dec = scramblers.get(input("Choice: ").strip(), scramblers["1"])
+            signals = [ami(bits), s_enc(bits)]
+            names = ["AMI", s_name]
+            decoder = s_dec
+        else:
+            signals = [ami(bits)]
+            names = ["AMI"]
+    else:
+        signals = [encoder(bits)]
+        names = [name]
 
     plot_digital_signal(bits, signals, names)
 
-    samples = [0.5, 1.2, 2.0, 1.5, 0.5, -0.5, -1.5, -0.5, 0.8, 1.8]
-    delta = 0.5
-
-    dm_bits, reconstructed = dm_encoder(samples, delta)
-
-    decoded_signal = dm_decoder(dm_bits, delta)
-
-    plot_delta_modulation(samples, decoded_signal)
-
+    while True:
+        ans = input("\nDecode the signal? (y/n): ").strip().lower()
+        if ans in ("y", "yes"):
+            decoded = decoder(signals[-1])
+            print("Decoded bits:", decoded)
+            print("Match with original:", decoded == bits)
+            break
+        if ans in ("n", "no"):
+            break
+        print("Invalid choice. Enter 'y' or 'n'.")
 
 if __name__ == "__main__":
     main()
